@@ -26,6 +26,7 @@ const vert = require('./shaders/triangle.vert');
 const opticalFlowFrag = require('./shaders/opticalflow.frag');
 const captureFrag = require('./shaders/capture.frag');
 const blur = require('./shaders/blur.frag');
+const sobel = require('./shaders/sobel.frag');
 
 /**
  * Takes a input image and does following:
@@ -54,6 +55,8 @@ export default class Flow {
         this.initCameraCapture();
 
         this.initBlurPass();
+
+        this.initSobelPass();
 
         this.initOpticalFlowPass();
 
@@ -157,6 +160,45 @@ export default class Flow {
         });
 
         this.blurQuad.setParent(this.blurScene);
+
+    }
+
+    initSobelPass() {
+
+        const textureParams = {
+            width: this.width,
+            height: this.height,
+            minFilter: this.gl.LINEAR,
+            magFilter: this.gl.LINEAR,
+            depth: false
+        }
+
+        this.verticalSobel = new RenderTarget(this.gl, textureParams);
+        this.horizontalSobel = new RenderTarget(this.gl, textureParams);
+
+        const uniforms = {
+            _InputImage: {
+                value: new Texture(this.gl)
+            },
+            _TexelSize: {
+                value: new Vec2(1.0 / 640.0, 1.0 / 480.0)
+            },
+            _Direction: {
+                value: 0
+            }
+        }
+
+        this.sobelPass = new Mesh(this.gl, {
+            geometry: new Triangle(this.gl),
+            program: new Program(this.gl, {
+                vertex: vert,
+                fragment: sobel,
+                uniforms,
+                transparent: false,
+                depthTest: false,
+                depthWrite: false
+            })
+        });
 
     }
 
@@ -268,7 +310,7 @@ export default class Flow {
             this.blurQuad.program.uniforms._BlurDirection.value.set(i % 2 === 0 ? blurRadius : 0, i % 2 === 0 ? 0 : blurRadius);
 
             this.gl.renderer.render({
-                scene: this.blurScene,
+                scene: this.blurQuad,
                 target: this.blurTextureWrite
             });
 
@@ -290,7 +332,7 @@ export default class Flow {
 
         this.cameraCaptureQuad.program.uniforms._CameraFrame.value = this.blurTextureRead.texture;
         this.gl.renderer.render({
-            scene: this.cameraCaptureScene,
+            scene: this.cameraCaptureQuad,
             target: this.currentFrame
         });
 
@@ -329,7 +371,7 @@ export default class Flow {
         this.opticalFlowQuad.program.uniforms._Fade.value = params.opticalFlow.FADE;
 
         this.gl.renderer.render({
-            scene: this.opticalFlowScene,
+            scene: this.opticalFlowQuad,
             target: this.flowVectorTextureWrite
         });
 
