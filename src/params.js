@@ -24,7 +24,7 @@ export const params = {
 
     //cleanest so far
     blur: {
-        ITERATIONS: 4
+        ITERATIONS: 2
     },
 
     opticalFlow: {

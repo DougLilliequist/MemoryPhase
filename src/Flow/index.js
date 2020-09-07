@@ -173,8 +173,15 @@ export default class Flow {
             depth: false
         }
 
-        this.verticalSobel = new RenderTarget(this.gl, textureParams);
-        this.horizontalSobel = new RenderTarget(this.gl, textureParams);
+        this.horizontalSobel = {
+            current:  new RenderTarget(this.gl, textureParams),
+            prev:  new RenderTarget(this.gl, textureParams)
+        }
+
+        this.verticalSobel = {
+            current: new RenderTarget(this.gl, textureParams),
+            prev: new RenderTarget(this.gl, textureParams)
+        }
 
         const uniforms = {
             _InputImage: {
@@ -224,6 +231,47 @@ export default class Flow {
         // opticalFlowparams.add(params.opticalFlow, "FADE", 0.0, 0.99).listen();
 
         this.opticalFlowScene = new Transform();
+        // const uniforms = {
+
+        //     _CurrentFrame: {
+        //         value: this.currentFrame.texture
+        //     },
+
+        //     _PrevFrame: {
+        //         value: this.prevFrame.texture
+        //     },
+
+        //     _PrevFlow: {
+        //         value: this.flowVectorTextureRead.texture
+        //     },
+        //     _Resolution: {
+        //         value: new Vec2(this.gl.renderer.width, this.gl.renderer.height)
+        //     },
+        //     _TexelSize: {
+        //         value: new Vec2(1.0 / 640, 1.0 / 480)
+        //         // value: new Vec2(0.1, 0.1)
+        //     },
+        //     _Tiny: {
+        //         value: params.opticalFlow.TINY
+        //     },
+        //     _Threshold: {
+        //         value: params.opticalFlow.THRESHOLD
+        //     },
+        //     _Fade: {
+        //         value: params.opticalFlow.FADE
+        //     },
+        //     _OffsetScale: {
+        //         value: params.opticalFlow.OFFSETSCALE
+        //     },
+        //     _Scale: {
+
+        //         // value: 100
+        //         value: 10
+
+        //     }
+
+        // }
+
         const uniforms = {
 
             _CurrentFrame: {
@@ -232,6 +280,22 @@ export default class Flow {
 
             _PrevFrame: {
                 value: this.prevFrame.texture
+            },
+
+            _SobelHorizontalCurrent: {
+                value: this.horizontalSobel.current.texture
+            },
+
+            _SobelHorizontalPrev: {
+                value: this.horizontalSobel.prev.texture
+            },
+
+            _SobelVerticalCurrent: {
+                value: this.verticalSobel.current.texture
+            },
+
+            _SobelVerticalPrev: {
+                value: this.verticalSobel.prev.texture
             },
 
             _PrevFlow: {
@@ -324,13 +388,34 @@ export default class Flow {
 
     }
 
+    calculateSobel() {
+
+        this.sobelPass.program.uniforms._InputImage.value = this.blurTextureRead.texture;
+
+        let tmp = this.horizontalSobel.current;
+        this.horizontalSobel.current = this.horizontalSobel.prev;
+        this.horizontalSobel.prev = tmp;
+
+        this.sobelPass.program.uniforms._Direction.value = 0;
+        this.gl.renderer.render({scene: this.sobelPass, target: this.horizontalSobel.current});
+
+        let tmp2 = this.verticalSobel.current;
+        this.verticalSobel.current = this.verticalSobel.prev;
+        this.verticalSobel.prev = tmp2;
+
+        this.sobelPass.program.uniforms._Direction.value = 1;
+        this.gl.renderer.render({scene: this.sobelPass, target: this.verticalSobel.current});
+
+    }
+
     saveCameraFrame() {
 
         let tmp = this.prevFrame;
         this.prevFrame = this.currentFrame;
         this.currentFrame = tmp;
 
-        this.cameraCaptureQuad.program.uniforms._CameraFrame.value = this.blurTextureRead.texture;
+        // this.cameraCaptureQuad.program.uniforms._CameraFrame.value = this.blurTextureRead.texture;
+        this.cameraCaptureQuad.program.uniforms._CameraFrame.value = this.cameraFrame;
         this.gl.renderer.render({
             scene: this.cameraCaptureQuad,
             target: this.currentFrame
@@ -352,6 +437,7 @@ export default class Flow {
             //prewarm to prevent spike in optical flow
             if (this.firstTick) {
                 this.blurInputVideo();
+                this.calculateSobel();
                 this.saveCameraFrame();
                 this.firstTick = false;
             }
@@ -359,11 +445,19 @@ export default class Flow {
             //...run as usual
             this.blurInputVideo();
             this.saveCameraFrame();
+            this.calculateSobel();
 
         // }
 
         this.opticalFlowQuad.program.uniforms._CurrentFrame.value = this.currentFrame.texture;
         this.opticalFlowQuad.program.uniforms._PrevFrame.value = this.prevFrame.texture;
+
+        this.opticalFlowQuad.program.uniforms._SobelHorizontalCurrent.value = this.horizontalSobel.current.texture;
+        this.opticalFlowQuad.program.uniforms._SobelHorizontalPrev.value = this.horizontalSobel.prev.texture;
+
+        this.opticalFlowQuad.program.uniforms._SobelVerticalCurrent.value = this.verticalSobel.current.texture;
+        this.opticalFlowQuad.program.uniforms._SobelVerticalPrev.value = this.verticalSobel.prev.texture;
+
         this.opticalFlowQuad.program.uniforms._PrevFlow.value = this.flowVectorTextureRead.texture;
         this.opticalFlowQuad.program.uniforms._Tiny.value = params.opticalFlow.TINY;
         this.opticalFlowQuad.program.uniforms._Threshold.value = params.opticalFlow.THRESHOLD;

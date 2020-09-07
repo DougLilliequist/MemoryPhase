@@ -2,6 +2,13 @@ precision highp float;
 
 uniform sampler2D _CurrentFrame;
 uniform sampler2D _PrevFrame;
+
+uniform sampler2D _SobelHorizontalCurrent;
+uniform sampler2D _SobelHorizontalPrev;
+
+uniform sampler2D _SobelVerticalCurrent;
+uniform sampler2D _SobelVerticalPrev;
+
 uniform sampler2D _PrevFlow;
 
 uniform vec2 _Resolution;
@@ -35,12 +42,18 @@ void main() {
     vec2 offsetY = vec2(0.0, _TexelSize.y) * _OffsetScale;
 
     //derivative X
-    float dX = texture2D(_PrevFrame, uv + offsetX).x - texture2D(_PrevFrame, uv - offsetX).x;
-    dX += texture2D(_CurrentFrame, uv + offsetY).x - texture2D(_CurrentFrame, uv - offsetY).x;
+    float dX = texture2D(_SobelHorizontalCurrent, uv).x + texture2D(_SobelHorizontalPrev, uv).x;
 
     //derivative y
-    float dY = texture2D(_PrevFrame, uv + vec2(0.0, _TexelSize.y)).x - texture2D(_PrevFrame, uv - vec2(0.0, _TexelSize.y)).x;
-    dY += texture2D(_CurrentFrame, uv + vec2(0.0, _TexelSize.y)).x - texture2D(_CurrentFrame, uv - vec2(0.0, _TexelSize.y)).x;
+    float dY = texture2D(_SobelVerticalCurrent, uv).x + texture2D(_SobelVerticalPrev, uv).x;
+
+    // //derivative X
+    // float dX = texture2D(_PrevFrame, uv + offsetX).x - texture2D(_PrevFrame, uv - offsetX).x;
+    // dX += texture2D(_CurrentFrame, uv + offsetX).x - texture2D(_CurrentFrame, uv - offsetX).x;
+
+    // //derivative y
+    // float dY = texture2D(_PrevFrame, uv + offsetY).x - texture2D(_PrevFrame, uv - offsetY).x;
+    // dY += texture2D(_CurrentFrame, uv + offsetY).x - texture2D(_CurrentFrame, uv - offsetY).x;
 
     //gradient magnitude
     float mag = sqrt((dX * dX) + (dY * dY) + _Tiny);
