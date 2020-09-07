@@ -32,7 +32,7 @@ export const params = {
         // THRESHOLD: 0.53, //used 0.09 originally...
         THRESHOLD: 0.6, //used 0.09 originally...
         FADE: 0.0,
-        OFFSETSCALE: 1.5
+        OFFSETSCALE: 3.5
     },
 
     simulation: {

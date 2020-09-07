@@ -26,7 +26,6 @@ const vert = require('./shaders/triangle.vert');
 const opticalFlowFrag = require('./shaders/opticalflow.frag');
 const captureFrag = require('./shaders/capture.frag');
 const blur = require('./shaders/blur.frag');
-const sobel = require('./shaders/sobel.frag');
 
 /**
  * Takes a input image and does following:
@@ -56,11 +55,7 @@ export default class Flow {
 
         this.initBlurPass();
 
-        this.initSobelPass();
-
         this.initOpticalFlowPass();
-
-        this.initVelocityPass();
 
     }
 
@@ -163,45 +158,6 @@ export default class Flow {
 
     }
 
-    initSobelPass() {
-
-        const textureParams = {
-            width: this.width,
-            height: this.height,
-            minFilter: this.gl.LINEAR,
-            magFilter: this.gl.LINEAR,
-            depth: false
-        }
-
-        this.verticalSobel = new RenderTarget(this.gl, textureParams);
-        this.horizontalSobel = new RenderTarget(this.gl, textureParams);
-
-        const uniforms = {
-            _InputImage: {
-                value: new Texture(this.gl)
-            },
-            _TexelSize: {
-                value: new Vec2(1.0 / 640.0, 1.0 / 480.0)
-            },
-            _Direction: {
-                value: 0
-            }
-        }
-
-        this.sobelPass = new Mesh(this.gl, {
-            geometry: new Triangle(this.gl),
-            program: new Program(this.gl, {
-                vertex: vert,
-                fragment: sobel,
-                uniforms,
-                transparent: false,
-                depthTest: false,
-                depthWrite: false
-            })
-        });
-
-    }
-
     initOpticalFlowPass() {
 
         //texture where we render the flow vectors
@@ -278,21 +234,6 @@ export default class Flow {
         });
 
         this.opticalFlowQuad.setParent(this.opticalFlowScene);
-
-    }
-
-    initVelocityPass() {
-
-        // const params = {
-        //     width: this.width,
-        //     height: this.height,
-        //     type: this.gl.HALF_FLOAT || this.gl.renderer.extensions['OES_texture_half_float'].HALF_FLOAT_OES,
-        //     format: this.gl.RGBA,
-        //     internalFormat: this.gl.RGBA16F,
-        //     depth: false
-        // }
-
-        // this.velocityTextureRead =
 
     }
 

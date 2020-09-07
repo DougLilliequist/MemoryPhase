@@ -111,7 +111,7 @@ export default class OpticalFlowParticles {
 
         this.quad = new Quad(this.gl);
         // this.quad.Output = this.flow.flowVectorTextureRead.texture;
-        // this.quad.setParent(this.scene);
+        this.quad.setParent(this.scene);
 
     }
 
@@ -153,6 +153,7 @@ export default class OpticalFlowParticles {
             //     inputVideo: this.video
             // });
             // this.quad.Output = this.particles.shadowPass.target.texture;
+            this.quad.Output = this.flow.flowVectorTextureRead.texture;
 
         }
         this.render();

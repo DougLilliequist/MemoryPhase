@@ -36,11 +36,11 @@ void main() {
 
     //derivative X
     float dX = texture2D(_PrevFrame, uv + offsetX).x - texture2D(_PrevFrame, uv - offsetX).x;
-    dX += texture2D(_CurrentFrame, uv + offsetY).x - texture2D(_CurrentFrame, uv - offsetY).x;
+    dX += texture2D(_CurrentFrame, uv + offsetX).x - texture2D(_CurrentFrame, uv - offsetX).x;
 
     //derivative y
-    float dY = texture2D(_PrevFrame, uv + vec2(0.0, _TexelSize.y)).x - texture2D(_PrevFrame, uv - vec2(0.0, _TexelSize.y)).x;
-    dY += texture2D(_CurrentFrame, uv + vec2(0.0, _TexelSize.y)).x - texture2D(_CurrentFrame, uv - vec2(0.0, _TexelSize.y)).x;
+    float dY = texture2D(_PrevFrame, uv + offsetY).x - texture2D(_PrevFrame, uv - offsetY).x;
+    dY += texture2D(_CurrentFrame, uv + offsetY).x - texture2D(_CurrentFrame, uv - offsetY).x;
 
     //gradient magnitude
     float mag = sqrt((dX * dX) + (dY * dY) + _Tiny);
@@ -59,11 +59,12 @@ void main() {
     float newLen = max(oldLen - _Threshold, 0.0);
     flow = (newLen * flow)/oldLen;
 
-    vec3 prevFlow = texture2D(_PrevFlow, vUV).xyz;
-    // vec3 forward = cross(vec3(flow.x, 0.0, 0.0), vec3(0.0, flow.y, 0.0));
+    // vec3 prevFlow = texture2D(_PrevFlow, vUV).xyz;
+    vec3 forward = cross(vec3(flow.x, 0.0, 0.0), vec3(0.0, flow.y, 0.0));
     // vec3 outPut = mix(vec3(flow, forward.z), prevFlow, _Fade);
     // vec3 outPut = mix(vec3(flow, flow.y - flow.x), prevFlow, _Fade);
-    vec3 outPut = mix(vec3(flow, flow.y - flow.x), prevFlow, _Fade);
+    // vec3 outPut = mix(vec3(flow, forward.z), prevFlow, _Fade);
+    vec3 outPut = vec3(flow, forward.z);
     
     gl_FragColor = vec4(outPut, 1.0);
 

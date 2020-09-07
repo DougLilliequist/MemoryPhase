@@ -62,7 +62,8 @@ void main() {
         
         pos.xyz += vel.xyz;
         // life -= mix(0.005, 0.02, lifeRate);
-        life -= mix(0.005, 0.02, lifeRate);
+        // life -= mix(0.005, 0.02, lifeRate);
+        life -= mix(0.01, 0.02, lifeRate);
 
     }
 
