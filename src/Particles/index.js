@@ -81,8 +81,8 @@ export default class Particles extends Mesh {
 
     initProgram({normal}) {
 
-        const shadowParams = gui.addFolder("shadow");
-        shadowParams.add(params.shadow, "BIAS", 0.0, 0.1, 0.0001).listen();
+        // const shadowParams = gui.addFolder("shadow");
+        // shadowParams.add(params.shadow, "BIAS", 0.0, 0.1, 0.0001).listen();
         
         const uniforms = {
 

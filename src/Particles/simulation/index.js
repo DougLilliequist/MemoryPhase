@@ -29,7 +29,6 @@ export default class Simulator {
         this.initVelocityCapture();
         this.initVelocity();
         this.initPosition();
-        // this.initColorCapture();
         
     }
 
@@ -80,7 +79,8 @@ export default class Simulator {
         this.velocity = new GPGPU(this.gl, {data: initVelocityData});
 
         const velocityParams = gui.addFolder("velocity");
-        velocityParams.add(params.simulation.velocity, "FORCE", 0.001, 0.1).listen();
+        velocityParams.add(params.simulation.velocity, "FORCE", 0.0001, 0.002).listen();
+        velocityParams.add(params.simulation.velocity, "INERTIA", 0.1, 0.99).listen();
 
         const uniforms = {
 
@@ -88,6 +88,9 @@ export default class Simulator {
             _Position: null,
             _Force: {
                 value: params.simulation.velocity.FORCE 
+            },
+            _Inertia: {
+                value: params.simulation.velocity.INERTIA
             },
             _Aspect: {
                 value: (this.gl.renderer.width / this.gl.renderer.height) / (640.0 / 480.0)
@@ -219,6 +222,7 @@ export default class Simulator {
         this.velocity.passes[0].program.uniforms._Position = this.position.uniform;
         this.velocity.passes[0].program.uniforms._OpticalFlowVelocity = this.velocityCapture.uniform;
         this.velocity.passes[0].program.uniforms._Force.value = params.simulation.velocity.FORCE;
+        this.velocity.passes[0].program.uniforms._Inertia.value = params.simulation.velocity.INERTIA;
         this.velocity.render();
 
     }
@@ -229,14 +233,6 @@ export default class Simulator {
         this.position.passes[0].program.uniforms._OpticalFlow.value = opticalFlow;
         this.position.passes[0].program.uniforms._Seed.value += t;
         this.position.render();
-    }
-
-    updateColorCapture({opticalFlow, inputImg}) {
-        
-        this.colorCapture.passes[0].program.uniforms._Position = this.position.uniform;
-        this.colorCapture.passes[0].program.uniforms._OpticalFlow.value = opticalFlow;
-        this.colorCapture.passes[0].program.uniforms._InputImg.value = inputImg;
-        this.colorCapture.render();
     }
 
     update({opticalFlow, worldMatrix, t}) {
@@ -257,10 +253,6 @@ export default class Simulator {
     get Position() {
         return this.position.uniform
     }
-
-    // get Color() {
-    //     return this.colorCapture.uniform
-    // }
 
     createDataTexture({data, size}) {
 

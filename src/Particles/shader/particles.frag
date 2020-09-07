@@ -68,7 +68,9 @@ void main() {
     shadowCoord = shadowCoord * 0.5 + 0.5;
 
     float shadow = softShadow(shadowCoord.xyz);
-    vec3 col = vec3(0.3, 0.74, 0.8) + (light * 0.2);
+    vec3 col = vec3(0.5, 0.8, 0.9) + (light * 0.1);
+    // vec3 col = vec3(0.7, 0.75, 0.8) + (light * 0.2);
+    // vec3 col = vec3(0.9, 0.9, 0.9) + (light * 0.3);
     col *= mix(0.2, 1.0, shadow);
     
     gl_FragColor = vec4(col, 1.0);

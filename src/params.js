@@ -38,7 +38,8 @@ export const params = {
     simulation: {
 
         velocity: {
-            FORCE: 0.001
+            FORCE: 0.001,
+            INERTIA: 0.7
         }
         
     },

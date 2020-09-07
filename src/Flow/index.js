@@ -122,8 +122,8 @@ export default class Flow {
         this.blurDirectionX = new Vec2(1.0, 0.0);
         this.blurDirectionY = new Vec2(0.0, 1.0);
 
-        const blurParams = gui.addFolder("blur");
-        blurParams.add(params.blur, "ITERATIONS", 0, 12, 2).listen();
+        // const blurParams = gui.addFolder("blur");
+        // blurParams.add(params.blur, "ITERATIONS", 0, 12, 2).listen();
 
         this.blurScene = new Transform();
 
@@ -175,11 +175,11 @@ export default class Flow {
         this.flowVectorTextureWrite = new RenderTarget(this.gl, textureParams);
         this.flowVectorTextureRead = new RenderTarget(this.gl, textureParams);
 
-        const opticalFlowparams = gui.addFolder("Optical Flow");
-        opticalFlowparams.add(params.opticalFlow, "TINY",  0.001, 1.0, 0.0001).listen();
-        opticalFlowparams.add(params.opticalFlow, "THRESHOLD", 0.0, 20.0, 0.001).listen();
-        opticalFlowparams.add(params.opticalFlow, "OFFSETSCALE", 1.0, 5.0, 0.5).listen();
-        opticalFlowparams.add(params.opticalFlow, "FADE", 0.0, 0.99).listen();
+        // const opticalFlowparams = gui.addFolder("Optical Flow");
+        // opticalFlowparams.add(params.opticalFlow, "TINY",  0.001, 1.0, 0.0001).listen();
+        // opticalFlowparams.add(params.opticalFlow, "THRESHOLD", 0.0, 20.0, 0.001).listen();
+        // opticalFlowparams.add(params.opticalFlow, "OFFSETSCALE", 1.0, 5.0, 0.5).listen();
+        // opticalFlowparams.add(params.opticalFlow, "FADE", 0.0, 0.99).listen();
 
         this.opticalFlowScene = new Transform();
         const uniforms = {
