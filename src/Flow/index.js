@@ -1,7 +1,4 @@
 import {
-    Transform
-} from '../../Vendors/ogl/src/core/Transform'
-import {
     Triangle
 } from '../../Vendors/ogl/src/extras/Triangle';
 import {
@@ -26,17 +23,6 @@ const vert = require('./shaders/triangle.vert');
 const opticalFlowFrag = require('./shaders/opticalflow.frag');
 const captureFrag = require('./shaders/capture.frag');
 const blur = require('./shaders/blur.frag');
-
-/**
- * Takes a input image and does following:
- * calculates brightness derivatives for optical flow
- * takes the flow image and pass it to a blur pass
- * applies the optical flow texture to a flud sim
- * 
- * getters:
- * optical flow
- * fluid sim
- */
 
 export default class Flow {
 
@@ -76,10 +62,7 @@ export default class Flow {
         }
 
         this.currentFrame = new RenderTarget(this.gl, params);
-
         this.prevFrame = new RenderTarget(this.gl, params);
-
-        this.cameraCaptureScene = new Transform();
 
         const uniforms = {
             _CameraFrame: {
@@ -87,7 +70,7 @@ export default class Flow {
             }
         }
 
-        this.cameraCaptureQuad = new Mesh(this.gl, {
+        this.cameraCapturePass = new Mesh(this.gl, {
             geometry: new Triangle(this.gl),
             program: new Program(this.gl, {
                 vertex: vert,
@@ -98,8 +81,6 @@ export default class Flow {
                 depthWrite: false            
             })
         });
-
-        this.cameraCaptureQuad.setParent(this.cameraCaptureScene);
 
     }
 
@@ -123,8 +104,6 @@ export default class Flow {
         // const blurParams = gui.addFolder("blur");
         // blurParams.add(params.blur, "ITERATIONS", 0, 12, 2).listen();
 
-        this.blurScene = new Transform();
-
         const uniforms = {
 
             _Texture: {
@@ -142,7 +121,7 @@ export default class Flow {
 
         }
 
-        this.blurQuad = new Mesh(this.gl, {
+        this.blurPass = new Mesh(this.gl, {
             geometry: new Triangle(this.gl),
             program: new Program(this.gl, {
                 vertex: vert,
@@ -154,13 +133,10 @@ export default class Flow {
             })
         });
 
-        this.blurQuad.setParent(this.blurScene);
-
     }
 
     initOpticalFlowPass() {
 
-        //texture where we render the flow vectors
         const textureParams = {
             width: this.width,
             height: this.height,
@@ -179,7 +155,7 @@ export default class Flow {
         // opticalFlowparams.add(params.opticalFlow, "OFFSETSCALE", 1.0, 5.0, 0.5).listen();
         // opticalFlowparams.add(params.opticalFlow, "FADE", 0.0, 0.99).listen();
 
-        this.opticalFlowScene = new Transform();
+        // this.opticalFlowScene = new Transform();
         const uniforms = {
 
             _CurrentFrame: {
@@ -213,15 +189,12 @@ export default class Flow {
                 value: params.opticalFlow.OFFSETSCALE
             },
             _Scale: {
-
-                // value: 100
                 value: 10
-
             }
 
         }
 
-        this.opticalFlowQuad = new Mesh(this.gl, {
+        this.opticalFlowPass = new Mesh(this.gl, {
             geometry: new Triangle(this.gl),
             program: new Program(this.gl, {
                 uniforms,
@@ -233,26 +206,27 @@ export default class Flow {
             })
         });
 
-        this.opticalFlowQuad.setParent(this.opticalFlowScene);
 
     }
 
     blurInputVideo() {
 
         const blurIterationCount = params.blur.ITERATIONS;
+        this.blurPass.program.uniforms._Resolution.value.set(1.0 / this.gl.renderer.width, 1.0 / this.gl.renderer.height);
 
-        this.gl.renderer.autoClear = false;
+        // this.gl.renderer.autoClear = false;
 
         for (let i = 0; i < blurIterationCount; i++) {
 
             let blurRadius = (blurIterationCount - i - 1);
 
-            this.blurQuad.program.uniforms._Texture.value = i === 0 ? this.cameraFrame : this.blurTextureRead.texture;
-            this.blurQuad.program.uniforms._BlurDirection.value.set(i % 2 === 0 ? blurRadius : 0, i % 2 === 0 ? 0 : blurRadius);
+            this.blurPass.program.uniforms._Texture.value = i === 0 ? this.cameraFrame : this.blurTextureRead.texture;
+            this.blurPass.program.uniforms._BlurDirection.value.set(i % 2 === 0 ? blurRadius : 0, i % 2 === 0 ? 0 : blurRadius);
 
             this.gl.renderer.render({
-                scene: this.blurQuad,
-                target: this.blurTextureWrite
+                scene: this.blurPass,
+                target: this.blurTextureWrite,
+                clear: false
             });
 
             let tmp = this.blurTextureRead;
@@ -261,7 +235,7 @@ export default class Flow {
 
         }
 
-        this.gl.renderer.autoClear = true;
+        // this.gl.renderer.autoClear = true;
 
     }
 
@@ -271,11 +245,28 @@ export default class Flow {
         this.prevFrame = this.currentFrame;
         this.currentFrame = tmp;
 
-        this.cameraCaptureQuad.program.uniforms._CameraFrame.value = this.blurTextureRead.texture;
+        this.cameraCapturePass.program.uniforms._CameraFrame.value = this.blurTextureRead.texture;
         this.gl.renderer.render({
-            scene: this.cameraCaptureQuad,
+            scene: this.cameraCapturePass,
             target: this.currentFrame
         });
+
+        //prewarm to prevent spike in optical flow
+        if(this.firstTick) {
+
+            let tmp2 = this.prevFrame;
+            this.prevFrame = this.currentFrame;
+            this.currentFrame = tmp2;
+            
+            this.cameraCapturePass.program.uniforms._CameraFrame.value = this.prevFrame.texture;
+            this.gl.renderer.render({
+                scene: this.cameraCapturePass,
+                target: this.currentFrame
+            });
+            
+            this.firstTick = false;
+
+        }
 
     }
 
@@ -283,42 +274,28 @@ export default class Flow {
         inputVideo
     }) {
 
-        // if (inputVideo.readyState >= inputVideo.HAVE_CURRENT_DATA) {
+        this.cameraFrame = inputVideo
+        this.blurInputVideo();
+        this.saveCameraFrame();
 
-            this.cameraFrame = inputVideo
-
-            // this.cameraFrame.image = inputVideo;
-            // this.cameraFrame.needsUpdate = true;
-
-            //prewarm to prevent spike in optical flow
-            if (this.firstTick) {
-                this.blurInputVideo();
-                this.saveCameraFrame();
-                this.firstTick = false;
-            }
-
-            //...run as usual
-            this.blurInputVideo();
-            this.saveCameraFrame();
-
-        // }
-
-        this.opticalFlowQuad.program.uniforms._CurrentFrame.value = this.currentFrame.texture;
-        this.opticalFlowQuad.program.uniforms._PrevFrame.value = this.prevFrame.texture;
-        this.opticalFlowQuad.program.uniforms._PrevFlow.value = this.flowVectorTextureRead.texture;
-        this.opticalFlowQuad.program.uniforms._Tiny.value = params.opticalFlow.TINY;
-        this.opticalFlowQuad.program.uniforms._Threshold.value = params.opticalFlow.THRESHOLD;
-        this.opticalFlowQuad.program.uniforms._OffsetScale.value = params.opticalFlow.OFFSETSCALE;
-        this.opticalFlowQuad.program.uniforms._Fade.value = params.opticalFlow.FADE;
+        this.opticalFlowPass.program.uniforms._CurrentFrame.value = this.currentFrame.texture;
+        this.opticalFlowPass.program.uniforms._PrevFrame.value = this.prevFrame.texture;
+        // this.opticalFlowPass.program.uniforms._PrevFlow.value = this.flowVectorTextureRead.texture;
+        this.opticalFlowPass.program.uniforms._Tiny.value = params.opticalFlow.TINY;
+        this.opticalFlowPass.program.uniforms._Threshold.value = params.opticalFlow.THRESHOLD;
+        this.opticalFlowPass.program.uniforms._OffsetScale.value = params.opticalFlow.OFFSETSCALE;
+        this.opticalFlowPass.program.uniforms._Fade.value = params.opticalFlow.FADE;
+        this.opticalFlowPass.program.uniforms._Resolution.value.set(this.gl.renderer.width, this.gl.renderer.height);
 
         this.gl.renderer.render({
-            scene: this.opticalFlowQuad,
-            target: this.flowVectorTextureWrite
+            scene: this.opticalFlowPass,
+            target: this.flowVectorTextureWrite,
+            clear: true
         });
 
-        let tmp = this.flowVectorTextureRead;
-        this.flowVectorTextureRead = this.flowVectorTextureWrite;
-        this.flowVectorTextureWrite = tmp;
+        // let tmp = this.flowVectorTextureRead;
+        // this.flowVectorTextureRead = this.flowVectorTextureWrite;
+        // this.flowVectorTextureWrite = tmp;
 
     }
 

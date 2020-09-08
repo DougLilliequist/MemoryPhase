@@ -59,7 +59,7 @@ void main() {
     float newLen = max(oldLen - _Threshold, 0.0);
     flow = (newLen * flow)/oldLen;
 
-    // vec3 prevFlow = texture2D(_PrevFlow, vUV).xyz;
+    vec3 prevFlow = texture2D(_PrevFlow, vUV).xyz;
     vec3 forward = cross(vec3(flow.x, 0.0, 0.0), vec3(0.0, flow.y, 0.0));
     // vec3 outPut = mix(vec3(flow, forward.z), prevFlow, _Fade);
     // vec3 outPut = mix(vec3(flow, flow.y - flow.x), prevFlow, _Fade);

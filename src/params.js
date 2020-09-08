@@ -39,7 +39,7 @@ export const params = {
 
         velocity: {
             FORCE: 0.001,
-            INERTIA: 0.8
+            INERTIA: 0.75
         }
         
     },

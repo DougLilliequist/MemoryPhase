@@ -147,13 +147,13 @@ export default class OpticalFlowParticles {
             }
 
 
-            this.particles.update({scene: this.scene, opticalFlow: this.flow.flowVectorTextureRead.texture, t: this.t});
+            this.particles.update({scene: this.scene, opticalFlow: this.flow.flowVectorTextureWrite.texture, t: this.t});
 
             // this.quad.update({
             //     inputVideo: this.video
             // });
             // this.quad.Output = this.particles.shadowPass.target.texture;
-            this.quad.Output = this.flow.flowVectorTextureRead.texture;
+            // this.quad.Output = this.flow.flowVectorTextureWrite.texture;
 
         }
         this.render();

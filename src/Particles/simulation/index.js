@@ -78,9 +78,9 @@ export default class Simulator {
         const initVelocityData = new Float32Array(this.countX * this.countY * 4.0);
         this.velocity = new GPGPU(this.gl, {data: initVelocityData});
 
-        const velocityParams = gui.addFolder("velocity");
-        velocityParams.add(params.simulation.velocity, "FORCE", 0.0001, 0.002).listen();
-        velocityParams.add(params.simulation.velocity, "INERTIA", 0.1, 0.99).listen();
+        // const velocityParams = gui.addFolder("velocity");
+        // velocityParams.add(params.simulation.velocity, "FORCE", 0.0001, 0.002).listen();
+        // velocityParams.add(params.simulation.velocity, "INERTIA", 0.1, 0.99).listen();
 
         const uniforms = {
 
@@ -232,6 +232,7 @@ export default class Simulator {
         this.position.passes[0].program.uniforms._Velocity = this.velocity.uniform;
         this.position.passes[0].program.uniforms._OpticalFlow.value = opticalFlow;
         this.position.passes[0].program.uniforms._Seed.value += t;
+        this.position.passes[0].uniforms._Bounds.value.set(this.viewportWidth, this.viewportHeight);
         this.position.render();
     }
 
@@ -276,7 +277,10 @@ export default class Simulator {
     onResize = () => {
 
         this.calcViewportDimensions();
-        this.position.passes[0].uniform._Bounds.value.set(this.viewportWidth, this.viewportHeight);
+        const aspect = (this.gl.renderer.width / this.gl.renderer.height) / (640.0 / 480.0);
+        this.position.passes[0].program.uniforms._Aspect.value = aspect;
+        this.velocity.passes[0].program.uniforms._Aspect.value = aspect;
+        this.velocityCapture.passes[0].program.uniforms._Aspect.value = aspect;
 
     }
 

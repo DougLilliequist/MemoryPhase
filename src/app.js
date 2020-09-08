@@ -5,7 +5,7 @@ class App {
 
     constructor() {
 
-        window.gui = new dat.GUI()
+        // window.gui = new dat.GUI()
 
         const opticalflowParticles = new OpticalFlowParticles();
         
