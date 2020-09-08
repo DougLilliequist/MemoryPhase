@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "parcel index.html --https --host 192.168.1.109",
     "build": "parcel build index.html --public-url ./",
-    "deploy": "push-dir --dir=dist --branch=gh-pages --cleanup --verbose",
+    "deploy": "gh-pages -d dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
