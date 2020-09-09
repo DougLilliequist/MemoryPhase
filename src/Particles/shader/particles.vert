@@ -20,6 +20,7 @@ varying vec2 vUv;
 varying vec4 vShadowCoord;
 varying vec3 vNormal;
 varying float vLife;
+varying vec3 vWorldPos;
 
 #define SCALE 0.003
 
@@ -29,19 +30,21 @@ void main() {
     vec4 worldPos = texture2D(_Position, worldPosition.xy);
 
     float scalePhase = (worldPos.w * 8.0 * (1.0 - worldPos.w));
+    // float scalePhase = worldPos.w;
 
     vec4 modelViewPos = modelViewMatrix * vec4(worldPos.xyz, 1.0);
     modelViewPos.xy += position.xy * SCALE * scalePhase;
+
+    gl_Position = projectionMatrix * modelViewPos;
 
     vec4 shadowModelViewPos = shadowViewMatrix * modelMatrix * vec4(worldPos.xyz, 1.0);
     shadowModelViewPos.xy += position.xy * SCALE* scalePhase;
     vec4 shadowCoord = shadowProjectionMatrix * shadowModelViewPos;
     vShadowCoord = shadowCoord;
 
-    gl_Position = projectionMatrix * modelViewPos;
-
     vUv = uv;
     // vNormal = normal;
     vLife = worldPos.w;
+    vWorldPos = worldPos.xyz;
 
 }

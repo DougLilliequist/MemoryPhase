@@ -6,7 +6,9 @@ class App {
     constructor() {
 
         // window.gui = new dat.GUI()
-
+        console.log('douglas@adventureclub.io');
+        console.log('douglas.lilliequist@gmail.com');
+        console.log('twitter: @DougLilliequist');
         const opticalflowParticles = new OpticalFlowParticles();
         
     }
