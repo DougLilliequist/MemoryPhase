@@ -93,7 +93,7 @@ export default class Particles extends Mesh {
                 value: new Vec2(this.gl.renderer.width, this.gl.renderer.height)
             },
             _ShadowMapTexelSize: {
-                value: 1.0 / 1024.0
+                value: 1.0 / params.shadow.SIZE
             },
             _ShadowWeight: {
                 value: 1.0 / 9.0
@@ -120,8 +120,8 @@ export default class Particles extends Mesh {
     initShadowPass({normal}) {
 
         this.shadowCamera = new Camera(this.gl, {
-            near: 0.1,
-            far: 3.0,
+            near: 1.0,
+            far: 5.0,
             left: -1.0,
             right: 1.0,
             top: 1.0,
@@ -129,10 +129,10 @@ export default class Particles extends Mesh {
         });
 
         // this.shadowCamera.position.set(0.0, 5.0, 5.0);
-        this.shadowCamera.position.set(0.0, 1.0, 0.1);
+        this.shadowCamera.position.set(0.0, 2.0, 0.1);
         this.shadowCamera.lookAt([0.0, 0.0, 0.0]);
 
-        this.shadowPass = new Shadow(this.gl, {light: this.shadowCamera});
+        this.shadowPass = new Shadow(this.gl, {light: this.shadowCamera, width: params.shadow.SIZE, height: params.shadow.SIZE});
 
         this.shadowPass.add({mesh: this, vertex: shadowVertex, fragment: shadowFragment});
 

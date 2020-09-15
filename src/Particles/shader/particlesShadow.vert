@@ -12,7 +12,7 @@ uniform sampler2D _Position;
 varying vec2 vUv;
 varying float vLife;
 
-#define SCALE 0.003
+#define SCALE 0.0035
 
 
 void main() {

@@ -38,14 +38,15 @@ export const params = {
     simulation: {
 
         velocity: {
-            FORCE: 0.0013,
+            FORCE: 0.0005,
             INERTIA: 0.8
         }
         
     },
     shadow: {
         // BIAS: 0.001
-        BIAS: 0.01
+        SIZE: 1024.0 * 2.0,
+        BIAS: 0.005
     }
 
 }

@@ -22,7 +22,7 @@ varying vec3 vNormal;
 varying float vLife;
 varying vec3 vWorldPos;
 
-#define SCALE 0.003
+#define SCALE 0.0035
 
 void main() {
 
