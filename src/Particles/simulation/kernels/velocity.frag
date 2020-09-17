@@ -13,10 +13,12 @@ void main() {
     vec3 opticalFlowVel = texture2D(_OpticalFlowVelocity, vUv).xyz;
     vec3 acc = vec3(0.0, 0.0, 0.0);
 
-    acc += (opticalFlowVel * _Force);
+    // acc += (opticalFlowVel * _Force);
+    acc += (opticalFlowVel * mix(0.0005, 0.002, _Force));
 
     vel.xyz += acc;
     vel.xyz *= _Inertia;
+    vel.w = length(opticalFlowVel);
 
     gl_FragColor = vel;
 

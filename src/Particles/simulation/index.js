@@ -37,7 +37,6 @@ export default class Simulator {
         const dist = this.camera.position.z;
         this.viewportHeight = Math.tan((this.camera.fov * (Math.PI / 180.0)) * 0.5) * dist;
         this.viewportWidth = this.viewportHeight * this.camera.aspect;
-
     }
 
     initEvents() {
@@ -80,7 +79,8 @@ export default class Simulator {
 
         // const velocityParams = gui.addFolder("velocity");
         // velocityParams.add(params.simulation.velocity, "FORCE", 0.0001, 0.002).listen();
-        // velocityParams.add(params.simulation.velocity, "INERTIA", 0.1, 0.99).listen();
+        // velocityParams.add(params.simulation.velocity, "FORCE", 0.0, 1.0).listen();
+        gui.add(params.simulation.velocity, "INERTIA", 0.1, 0.99).listen();
 
         const uniforms = {
 

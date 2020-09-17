@@ -16,14 +16,14 @@ export default class SphereNormal {
         this.scene = new Transform();
 
         this.texture = new RenderTarget(this.gl, {
-            width: 512.0,
-            height: 512.0,
+            width: 128.0,
+            height: 128.0,
             depth: false,
             depthTexture: false
         });
 
         const geometry = new Sphere(this.gl, {
-            radius: 0.6,
+            radius: 0.9,
             widthSegments: 64.0,
             heightSegments: 32.0
         });

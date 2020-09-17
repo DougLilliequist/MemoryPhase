@@ -24,7 +24,7 @@ vec2 hash22(vec2 p)
 void main() {
 
     vec4 pos = texture2D(tMap, vUv);
-    vec4 vel = texture2D(_Velocity, vUv);
+    vec3 vel = texture2D(_Velocity, vUv).xyz;
     float lifeRate = texture2D(_Params, vUv).x;
 
     float life = pos.w;

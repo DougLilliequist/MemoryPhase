@@ -38,11 +38,11 @@ export default class OpticalFlowParticles {
 
         this.camera = new Camera(this.gl, {
             fov: 35,
-            far: 10,
+            far: 50,
             aspect: window.innerWidth / window.innerHeight
         });
 
-        this.camera.position.z = 1;
+        this.camera.position.z = 5;
 
         this.initVideo();
 
@@ -109,7 +109,7 @@ export default class OpticalFlowParticles {
 
     initQuad() {
 
-        this.quad = new Quad(this.gl);
+        // this.quad = new Quad(this.gl);
         // this.quad.Output = this.flow.flowVectorTextureRead.texture;
         // this.quad.setParent(this.scene);
 

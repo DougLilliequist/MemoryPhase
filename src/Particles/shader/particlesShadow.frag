@@ -12,9 +12,10 @@
 
     void main() {
 
-        float normal = texture2D(_Normal, vUv).x;
-        if(normal <= 0.0) discard;
-        // if(dot(normal, normal) <= 0.0) discard;
+        // float normal = texture2D(_Normal, vUv).x;
+        // if(normal <= 0.0) discard;
+        vec2 uv = 2.0 * vUv - 1.0;
+        if(dot(uv, uv) > 1.0) discard;
         vec4 depth = packRGBA(gl_FragCoord.z);
 
         gl_FragColor = depth;

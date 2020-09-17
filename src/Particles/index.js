@@ -121,15 +121,17 @@ export default class Particles extends Mesh {
 
         this.shadowCamera = new Camera(this.gl, {
             near: 1.0,
-            far: 5.0,
-            left: -1.0,
-            right: 1.0,
-            top: 1.0,
-            bottom: -1.0
+            far: 20.0,
+            left: -4.0,
+            right: 4.0,
+            top: 4.0,
+            bottom: -4.0
         });
 
         // this.shadowCamera.position.set(0.0, 5.0, 5.0);
-        this.shadowCamera.position.set(0.0, 2.0, 0.1);
+        // this.shadowCamera.position.set(0.0, 8.0, 0.25);
+        // this.shadowCamera.position.set(0.0, 10.0, 1.0);
+        this.shadowCamera.position.set(0.0, 10.0, 2.0);
         this.shadowCamera.lookAt([0.0, 0.0, 0.0]);
 
         this.shadowPass = new Shadow(this.gl, {light: this.shadowCamera, width: params.shadow.SIZE, height: params.shadow.SIZE});
