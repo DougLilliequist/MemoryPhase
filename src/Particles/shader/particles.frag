@@ -16,9 +16,8 @@ varying float vLife;
 varying vec3 vWorldPos;
 varying float vVelocity;
 
-// #define LIGHT vec3(0.0, 1.0, 0.025)
-// #define LIGHT vec3(0.0, 10.0, 1.0)
-#define LIGHT vec3(0.0, 10.0, 2.0)
+// #define LIGHT vec3(0.0, 10.0, 2.0)
+#define LIGHT vec3(0.0, 10.0, 1.0)
 
 float unpackRGBA (vec4 v) {
     return dot(v, 1.0 / vec4(1.0, 255.0, 65025.0, 16581375.0));
@@ -73,7 +72,7 @@ void main() {
 
     float shadow = softShadow(shadowCoord.xyz);
     vec3 col = vec3(0.61, 0.8, 0.98);
-    col = mix(col * 0.1, col, light) + (light * 0.1);
+    col = mix(col * 0.3, col, light) + (light * 0.2);
     col *= mix(0.15, 1.0, shadow);
     
     gl_FragColor = vec4(col, 1.0);

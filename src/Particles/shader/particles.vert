@@ -44,7 +44,7 @@ void main() {
     gl_Position = projectionMatrix * modelViewPos;
 
     vec4 shadowModelViewPos = shadowViewMatrix * modelMatrix * vec4(worldPos.xyz, 1.0);
-    shadowModelViewPos.xy += position.xy * SCALE* scalePhase;
+    //shadowModelViewPos.xy += position.xy * SCALE* scalePhase;
     vec4 shadowCoord = shadowProjectionMatrix * shadowModelViewPos;
     vShadowCoord = shadowCoord;
 
