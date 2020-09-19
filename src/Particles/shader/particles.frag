@@ -42,8 +42,8 @@ float softShadow(in vec3 shadowCoord) {
     for(int y = -1; y <= 1; y++) {
         for(int x = -1; x <= 1; x++) {
 
-            // vec2 hash = hash22((1000.0 * shadowCoord.xy) + vec2(float(x), float(y))) * 2.0 - 1.0;
-            vec2 hash = hash22((1000.0 * shadowCoord.xy) + vec2(float(x), float(y))) - 0.5;
+            vec2 hash = hash22((1000.0 * shadowCoord.xy) + vec2(float(x), float(y))) * 2.0 - 1.0;
+            // vec2 hash = hash22((1000.0 * shadowCoord.xy) + vec2(float(x), float(y))) - 0.5;
             vec2 offset = (vec2(float(x), float(y)) + hash) * _ShadowMapTexelSize;
 
             float sampledShadow = unpackRGBA(texture2D(tShadow, shadowCoord.xy + offset));
